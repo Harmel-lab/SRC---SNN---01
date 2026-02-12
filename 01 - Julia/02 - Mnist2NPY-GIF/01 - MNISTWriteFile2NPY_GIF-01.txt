@@ -1,0 +1,118 @@
+##########################################################
+## VHDL Library Generator - AMD FPGA                    ##
+##  -> Generation of spiking traces for the 10,000      ##
+##     MNIST test samples and writing storage files     ##
+##     (NPZ and GIF)                                    ##
+##########################################################
+##             MNISTWriteFileSpt_GIF-01                 ##
+##             ------------------------                 ##
+##                                       14-07-2025     ##
+## Program that generates all spiking traces for the    ##
+## 10,000 MNIST test samples in order to perform a      ##
+## complete comparison between the different models     ##
+## (Florent - PH)                                       ##
+##                                                      ##
+## -> output in 1 NPZ file -> 10,000 NPY                ##
+## -> each NPY -> the MNIST sample index                ##
+##             -> the full 28px28p representation       ##
+##             -> the 220 spiking time representations  ##
+##                                                      ##
+##                                       03-05-2025     ##     
+##########################################################
+# for reading and processing the NPZ file
+using NPZ
+
+# for reading and processing the MNIST file
+using MLDatasets
+
+# used to generate input neuron spikes - a=rand(Bernoulli(0.9), 100)
+using Distributions
+
+# used if needed for displaying results
+using Plots
+
+##########################################################
+## MNIST reading and Spiking train generation           ##
+##########################################################
+## program to set up a library that                     ##
+## reads the MNIST file.                                ##
+## conversion into a spike train for one MNIST element  ##
+## based on an interactive slide.                       ##
+## -> uses the Bernoulli probability function with      ##
+##    a gain (0<=gain<=1).                              ##
+##                                                      ##
+##########################################################
+train_x, train_y = MNIST(split=:test)[:]
+
+#const rate_gain=0.25
+const Gain = 0.250
+
+# number of elements in arrays and loop bounds - various constants
+const dataset_config_seq_length = 200
+const dataset_config_prefix_length = 20
+const dataset_config_suffix_length = 0
+
+const Seq_length = dataset_config_seq_length
+const Total_seq_length=dataset_config_prefix_length+dataset_config_seq_length+dataset_config_suffix_length
+const DataFirst = dataset_config_prefix_length+1
+const DataEnd = dataset_config_prefix_length+dataset_config_seq_length
+
+# Set up the vectors
+STs = size(train_x)
+global TSspikes = zeros(Bool, STs[1],STs[2],Total_seq_length)
+
+# spike time initialization
+TSspikes = zeros(Bool, STs[1],STs[2],Total_seq_length)
+GifTSspikes = zeros(Bool, STs[1],STs[2],Total_seq_length)
+
+#################################################
+## Function to write the npy and gif files     ##
+#################################################
+# Read a .npy file
+const a = "../MNIST/" ## -> adapt as needed
+const b = "NPY/"
+const c = "GIF/" 
+
+# Define working paths
+dir_pathwriteNPY = a * b
+dir_pathwriteGIF = a * c
+
+if !(isdir(dir_pathwriteNPY))
+    error("ERROR -> check if ./MNIST/NPY directory exists")
+end
+if !(isdir(dir_pathwriteGIF))
+    error("ERROR -> check if ./MNIST/GIF directory exists")
+end
+
+for Img in 1:10000
+    # SPIKES TRACE - set up the spike pulse vectors - 
+    for i in 1:STs[1]
+        for j in 1:STs[2]
+            global TSspikes[i,j,DataFirst:DataEnd]=rand(Bernoulli((Gain*train_x[i,j,Img])),Seq_length)
+            GifTSspikes[29-j,i,:]=TSspikes[i,j,:]
+        end
+    end
+
+    # SPIKES TRACE - set the 'gif' 
+    c = cgrad([:white,:black], [0.50, 0.9995], categorical = true)
+    anim = @animate for i = 1:1:220
+        heatmap(1:28,1:28, GifTSspikes[1:28,1:28,i],
+            c = :grays,              # Black & white
+            axis = false,            # No axes
+            colorbar = false,        # No colorbar
+            aspect_ratio = 1,        # Square pixels
+            size = (400, 400),       # Exact size
+            framestyle = :none,      # Remove frame
+            border = :none,
+            ticks = false,
+            legend = false
+        )
+    end
+
+    # SPIKES TRACE - save 'gif' and NPY
+    filename = dir_pathwriteGIF * "spiking_number" * lpad(string(Img), 5, '0') * ".gif"
+    gif(anim, filename , fps = 50)
+    filename = dir_pathwriteNPY * "spiking_number" * lpad(string(Img), 5, '0') * ".npy"
+    npzwrite(filename, TSspikes)
+    
+end

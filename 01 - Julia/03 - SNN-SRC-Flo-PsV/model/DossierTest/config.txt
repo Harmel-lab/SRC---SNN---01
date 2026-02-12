@@ -1,0 +1,25 @@
+{
+    "cell_config": {
+        "alphas": [
+            0.9
+        ],
+        "recurrence": null,
+        "bias_max": -4.0,
+        "activation": "surrogate_relu",
+        "type": "src",
+        "num_integrators_per_neuron": 1
+    },
+    "dataset_config": {
+        "encoding": "rate",
+        "seq_length": 200,
+        "prefix_length": 20,
+        "suffix_length": 0,
+        "rate_gain": 0.25,
+        "name": "mnist"
+    },
+    "input_size": 784,
+    "hidden_size": 128,
+    "hidden_layers": 0,
+    "output_size": 10,
+    "readout_input_factor": 10
+}

@@ -1,0 +1,408 @@
+##############################################################
+## Simulation of a neural network - Li=100 and Lo=10        ##
+##############################################################
+##                 FPGA Model 1 - NPY reading               ##
+##                 --------------------------               ##
+##                                       29-08-2025         ##
+## test program for all parameters computed                 ##
+## by Florent.                                              ##
+## Input data -> MNIST recomputed as a spike train          ##
+## with a null prefix length = 20                           ##
+##             train length = 200                           ##
+##             null suffix length = 0                       ##
+##                                                          ##
+## All parameters contained in a JSON file                  ##
+## All coefficients of the differential equations -> NPZ    ##
+##                                                          ##
+## NPY                                                      ##
+## Reading the spike vector -> chosen MNIST directory       ##
+## and reading/analyzing this vector by the                 ##
+## neural network -> output is the detected digit.          ##
+##                                                          ##
+##                Pascal Harmeling 2025 - ULiège            ##
+## Version 1 - Adaptation of the code 'NET-SRC-JSON-All-07' ##
+## Version 2 - Modification based on NeSrc3Fpga4            ##
+##              -> call to function NeSrc3Fpga5             ##
+## Version 3 - adjustment of the coefficients of the        ##
+##             forward_weightsp matrix to match the matrix  ##
+##             used in VHDL                                 ##
+##############################################################
+# for reading and processing the JSON file
+using JSON3
+
+# for reading and processing the NPZ file
+using NPZ
+
+# for reading and processing the MNIST file
+using MLDatasets
+
+# used to generate input neuron spikes - a=rand(Bernoulli(0.9), 100)
+using Distributions
+
+# used if needed for displaying results
+using Plots
+using Printf
+using LaTeXStrings
+
+# use of my lib for the neuro model - personal and Florent's - for reference 
+# def using my lib -> neuron with struct and function - spike inputs via vectors
+include("../MyLib/FpgaLib-02.jl")
+
+
+##########################################################
+## Creation of JSON3 file-reading methods               ##
+##########################################################
+## program to set up a library                          ##
+## for reading the different parameters encoded in a    ##
+## JSON3 file                                           ##
+##                                                      ##
+##                Pascal Harmeling 2023 - ULiège        ##
+##                                                      ##
+##########################################################
+
+#################################################
+## Function use JSON file input - read values  ##
+#################################################
+json_string = read("model/config.json", String)
+
+FileJson = JSON3.read(json_string)
+
+const cell_config_alphas=FileJson.cell_config.alphas
+const cell_config_recurrence=FileJson.cell_config.recurrence
+const cell_config_bias_max=FileJson.cell_config.bias_max
+const cell_config_activation=FileJson.cell_config.activation
+const cell_config_type=FileJson.cell_config.type
+const cell_config_num_integrators_per_neuron=FileJson.cell_config.num_integrators_per_neuron
+
+const dataset_config_encoding=FileJson.dataset_config.encoding
+const dataset_config_seq_length::Int16=FileJson.dataset_config.seq_length
+const dataset_config_prefix_length=FileJson.dataset_config.prefix_length
+const dataset_config_suffix_length=FileJson.dataset_config.suffix_length
+const dataset_config_rate_gain=FileJson.dataset_config.rate_gain
+const dataset_config_name=FileJson.dataset_config.name
+    
+const input_size=FileJson.input_size
+const hidden_size=FileJson.hidden_size
+const hidden_layers=FileJson.hidden_layers
+const output_size=FileJson.output_size
+const readout_input_factor=FileJson.readout_input_factor
+
+
+#################################################
+## Use NPY file input - read values            ##
+#################################################
+
+vars=npzread("model/arrays.npz")
+
+const bias=get(vars,"l0_bias", 0)
+const forward_weights=get(vars,"l0_forward_weights", 0)
+const initial_h=get(vars,"l0_initial_h", 0)
+const initial_hs=get(vars,"l0_initial_hs", 0)
+const initial_i=vec(get(vars,"l0_initial_i", 0)[1,:,1])   #VECTORISATION 
+const r=get(vars,"l0_r", 0)
+const rho=get(vars,"l0_rho", 0)
+const rs=get(vars,"l0_rs", 0)
+const zs_dep=vec(get(vars,"l0_zs_dep", 0)[1,:])
+zs_hyp=vec(get(vars,"l0_zs_hyp", 0)[1,:])
+fill!(zs_hyp, 0.81)
+const readout=get(vars,"readout", 0)
+const readoutp=round.(Int8, readout.*10)
+
+
+#######################################################################
+# read the MNIST label list to verify the digit only
+#######################################################################
+train_x, train_y = MNIST(split=:test)[:]
+
+const Seq_length = dataset_config_seq_length
+const Total_seq_length=dataset_config_prefix_length+dataset_config_seq_length+dataset_config_suffix_length
+const DataFirst = dataset_config_prefix_length+1
+const DataEnd = dataset_config_prefix_length+dataset_config_seq_length
+
+
+
+#-----------------------------------------------------------------------------------------------------BEGIN-----
+#---------------------------------------------------------------------------------------------------------------
+#
+# SETUP WORKBENCH 
+# ---------------
+#
+# EDIT SETUP 
+#
+#---------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------
+Fparam=Vector{Int16}(undef,5)
+Fparam[1] = -3000
+Fparam[2] = 900 # modification - allows adapting the spike frequency - WARNING: previously 0.99 -> Coeff. 1000 -- test with 970
+Fparam[3] = 100 # Zmin always 100
+fill!(zs_hyp, 0.900)
+
+## quantization de la matrice de poids des SRC
+MybinaryVal=256
+
+Koeff= (abs(maximum(forward_weights)) > abs(minimum(forward_weights))) ? MybinaryVal/abs(maximum(forward_weights)) : MybinaryVal/abs(minimum(forward_weights))
+const forward_weightsp=round.(Int16,(get(vars,"l0_forward_weights", 0).*Koeff))
+
+global filenameT = "OutputSpikingCompare(Zmax" * lpad(string(Fparam[2]), 3, '0') * "-" *  lpad(string(zs_hyp[1]), 3, '0') * "_" * lpad(string(Total_seq_length), 3, '0') * "_S01_intZERO_" * lpad(string(MybinaryVal), 3, '0') * ").txt"
+
+#-------------------------------------------------------------------------------------------------------END-----
+#---------------------------------------------------------------------------------------------------------------
+#######################################################################
+# to be defined for the start index and the number of images created
+# for the COE file
+#######################################################################
+#                              Warning
+#
+# - size of the area => MaxImg
+#      the BRAM may be too small to hold the file -> reduce MaxImg
+# - StartImg+MaxImg<=10000 
+# - StSize => always '1', '2', '4', '5' or 10
+#             - '1'  -> 20 black + 200 spiking traces - '220'
+#             - '2'  -> 10 black + 100 spiking traces - '110'
+#             - '4'  ->  5 black +  50 spiking traces - '055'
+#             - '5'  ->  4 black +  40 spiking traces - '044'
+#             - '10' ->  2 black +  20 spiking traces - '022'
+#
+#######################################################################
+
+const StSize = 1
+const PosSt::Int8 = 1
+const StartImg::Int16 = 0001 
+const StopImg::Int16 = 00500
+
+#################################################
+## analysis of the constant values             ##
+#################################################
+## compute limt values
+NbrBlack::Int32 = 20 / StSize
+NbrSpiking::Int32 = 200 / StSize
+
+## Check limit values
+if (StopImg> (last(size(train_x))))
+    error("ERROR -> The value of StopImg is greater than the maximum size of train_x, program stopped.")
+end
+ 
+if ((StSize != 1) && (StSize != 2) && (StSize != 4) && (StSize != 5) && (StSize != 10))
+    error("ERROR -> The value of StSize must be '1','2','4' or '5', program stopped.")
+end
+
+if (PosSt>StSize) 
+    error("ERROR -> The value of PosSpike must be '1','2','4','5' or '10' and be less than or equal to StSize, program stopped.")
+end
+
+#################################################
+## Read npy files -> directory                 ##
+#################################################
+##constante - Lire un fichier .npy
+const a = "../MNIST/" ## -> to be adapted as needed
+const b = "Npy/"
+
+# define path work
+dir_pathread = a * b
+
+#################################################
+## analyse path work                           ##
+#################################################    
+if !(isdir(dir_pathread))
+    error("ERROR -> Le répertoire de lecture des fichiers n'existe pas -> fin de programme.")
+end
+
+#################################################
+## creation and initialization of working      ##
+## variables                                   ##
+#################################################
+XORTSspikes = zeros(Bool, 28,28,NbrBlack+NbrSpiking)
+array = zeros(Bool, 28,28,220)
+
+
+
+# Set vector and initialize
+STs = size(train_x)
+global TSspikes = zeros(Bool, STs[1],STs[2],Total_seq_length)
+
+#initialize varaibles - is, us
+is=zeros(Float32,Total_seq_length,100)
+us=zeros(Float32,Total_seq_length,100)
+
+#initialize varaibles - h, z, hs, Sout et Rout - méthode de Florent
+h=zeros(Float32,Total_seq_length,100)
+z=zeros(Float32,Total_seq_length,100)
+hs=zeros(Float32,Total_seq_length,100)
+Sout=zeros(Float32,Total_seq_length,100)
+
+RoutFB=zeros(Float32,Total_seq_length,10) # with feedback 0.99 -> Leackage current
+RoutW =zeros(Float32,Total_seq_length,10) # without feedback   -> pur integrator
+
+
+#initialize varaibles - hp, zp, hsp, Soutp et Rout - méthode de Pascal
+isp=zeros(Int32,Total_seq_length,100)
+Sum=zeros(Int32,Total_seq_length,100)
+ispstat=zeros(Int32,Total_seq_length,100)
+
+isps::Int16=0
+
+hp=zeros(Int16,Total_seq_length,100)
+zp=zeros(Int16,Total_seq_length,100)
+hsp=zeros(Int16,Total_seq_length,100)
+
+Soutp=zeros(Int8,Total_seq_length,100)
+
+RoutpFB=zeros(Int32,Total_seq_length,10) # with feedback 0.99 -> Leackage current
+RoutpW=zeros(Int32,Total_seq_length,10)  # without feedback   -> pur integrator
+MaxRoutpW=0
+
+#initialize spikes time
+TSspikes = zeros(Bool, STs[1],STs[2],Total_seq_length)
+TauxErrorFFB::Int16 = 0
+TauxErrorPFB::Int16 = 0
+TauxErrorFW::Int16 = 0
+TauxErrorPW::Int16 = 0
+
+#get time - who long?
+t1=time()
+
+filenameO = "OutputSpikingCompare(Zmax" * lpad(string(Fparam[2]), 3, '0') * "-" *  lpad(string(zs_hyp[1]), 3, '0') * "_SP" * lpad(string(NbrBlack+NbrSpiking), 3, '0') * "_B" * lpad(string(MybinaryVal), 3, '0') * ").txt"
+file = open(filenameO, "a") #open file with add 
+@printf(file, "Flo : zs_dep %f - zs_hyp %f \n", zs_dep[1],zs_hyp[1] )
+@printf(file, "VHDL: zs_dep %f - zs_hyp %f \n\n", Fparam[3],Fparam[2] )
+@printf(file, "Struct NbrBlack :  %3i - NbrSpiking : %3i - StartImg : %5i - StopImg : %5i - PosSt %1i \n\n",NbrBlack ,NbrSpiking,StartImg ,StopImg ,PosSt)
+
+##########################################################
+## neuronal activity - main loop                        ##
+##########################################################
+Img::Int16 = 0
+global Img
+## Main LOOP
+for  Img in StartImg:StopImg
+
+    ##########################################################
+    ## neuronal activity - spike train generation           ##
+    ##########################################################
+   
+    Num = string(bitstring(train_y[Img]))[61:64]
+    filename = dir_pathread  *"spiking_number" * lpad(string(Img), 5, '0') * ".npy"
+    #println(filename)
+    if !(isfile(filename))
+        println("ERROR -> $filename")
+        error("ERROR -> le fichier *.npy n'existe pas")
+    end
+    
+    array = npzread(filename)
+    XORTSspikes = zeros(Bool, 28,28,NbrBlack+NbrSpiking)
+    XORTSspikes[:,:,(NbrBlack+1)] = array[:,:,(21 + ((PosSt - 1) * NbrSpiking))]
+    XORTSspikes[:,:,(NbrBlack+NbrSpiking)] = >=(0.5).(train_x[:,:,Img]) ## set last display to check answer
+
+    ## spiking trace without two spikes ...
+    for i in 2:(NbrSpiking-1)
+        XORTSspikes[:,:,(NbrBlack+i)] = (XORTSspikes[:,:,(NbrBlack+i-1)] .⊻  array[:,:,(20+ ((PosSt - 1) * NbrSpiking)+i)] ) .& array[:,:,(20+ ((PosSt - 1) * NbrSpiking)+i)]
+    end
+    
+    ##########################################################
+    ## neuronal activity - spike train analysis             ##
+    ##########################################################
+    # Running the simulation of the SNN neural network -> SRC
+    # 2 methods are used - Florent's method and Pascal's method.
+    for i in 1:(NbrBlack+NbrSpiking)
+        
+        #picture (2D) to vector
+        VTSspikes=vec(XORTSspikes[:,:,i])
+        
+        #compute 100 SRC
+        for j in 1:100
+            
+            # compute input current 'is' and 'us'  (forward_weights,VTSspikes,cell_config_alphas,rho)
+            if i==1 # initial condition i
+                global is[1,j]=sum(forward_weights[j,:].*VTSspikes)+initial_i[j]
+                global isp[1,j]=sum(forward_weightsp[j,:].*VTSspikes)
+                global Sum[1,j]= isp[1,j]
+            else
+                global is[i,j]=(is[i-1,j] - (is[i-1,j]/16 + is[i-1,j]/32)) + sum(forward_weights[j,:].*VTSspikes)
+                global Sum[i,j]= (sum(forward_weightsp[j,:].*VTSspikes))
+                global isp[i,j]=(isp[i-1,j] - (isp[i-1,j]>>4 + isp[i-1,j]>>5)) + Sum[i,j]
+            end
+            global us[i,j]=rho[j]*tanh((1/rho[j])*is[i,j])        
+                        
+            # Computation following the method of -------------  FLORENT -----------
+            # pompute h, z, hs et Sout
+            if i==1   #conditions initiales h,z et hs
+                global h[1,j]=initial_h[j]
+                global z[1,j]=zs_hyp[j]- (zs_hyp[j] - zs_dep[j]) * (1 / (1+exp(-10 * -0.5)))
+                global hs[1,j]=initial_hs[j]
+            else
+                global h[i,j]=tanh(us[i,j] + r[j]*h[i-1,j] + rs[j]*hs[i-1,j] + bias[j])
+                global z[i,j]=zs_hyp[j]- (zs_hyp[j] - zs_dep[j]) * (1 / (1+exp(-10 * (h[i-1,j]-0.5))))
+                global hs[i,j]=z[i,j]*hs[i-1,j]+(1-z[i,j])*h[i-1,j]
+            end
+            Sout[i,j]=ifelse(h[i,j]>0.5,1,0) 
+            
+            # Computation following the method of ------------- PASCAL -------------
+            # compute hp, zp, hsp et Soutp
+            if i==1   # initial conditions  h,z et hs
+                global hp[1,j]=0 #-1024
+                global hsp[1,j]=0 #-800
+                global zp[1,j]=0
+            else
+                if isp[i,j]>0 
+                    # input current   .. + 1000
+                    isps = 1023
+                else
+                    # No input current .. -1000
+                    isps = -1024
+                end
+                ispstat[i,j]=isps
+                global hp[i,j],hsp[i,j],zp[i,j]=NeSRC3Fpga5!(isps, hp[i-1,j], hsp[i-1,j],Fparam)
+            end
+           
+            Soutp[i,j]=ifelse(hp[i,j]>=512,1,0) 
+            
+        end
+
+        # 10 Rout
+        for j in 1:10
+           # Computation following the method of -------------  FLORENT -----------
+           if i==1
+                #calcul le vecteur d'entrée (100 éléments)
+                global RoutFB[i,j]=sum(readout[j,:].* Sout[i,:])
+                global RoutW[i,j]=sum(readout[j,:].* Sout[i,:])
+            else
+                global RoutFB[i,j]=0.96875*RoutFB[i-1,j]+sum(readout[j,:].* Sout[i,:]) # 1-( 1/32)
+                global RoutW[i,j]=RoutW[i-1,j]+sum(readout[j,:].* Sout[i,:])
+            end
+
+           # Computation following the method of ------------- PASCAL -------------
+           if i==1
+                #calcul le vecteur d'entrée (100 éléments)
+                global RoutpFB[i,j]=sum(readoutp[j,:].* Soutp[i,:])
+                global RoutpW[i,j]=sum(readoutp[j,:].* Soutp[i,:])
+            else
+                global RoutpFB[i,j]=(((RoutpFB[i-1,j]<<5)-RoutpFB[i-1,j])>>5)+(sum(readoutp[j,:].* Soutp[i,:])) # 1-( 1/32)
+                global RoutpW[i,j]=RoutpW[i-1,j]+(sum(readoutp[j,:].* Soutp[i,:])) 
+
+                if (MaxRoutpW<RoutpW[i,j]) MaxRoutpW=RoutpW[i,j] end
+            end
+        end  
+    end 
+
+    # Computation following the method of -------------  FLORENT -----------
+    solFB::Int8 = last(findmax(RoutFB[NbrBlack+NbrSpiking,:]))-1
+    solW::Int8 = last(findmax(RoutW[NbrBlack+NbrSpiking,:]))-1
+    # Computation following the method of ------------- PASCAL -------------
+    solpFB::Int8 = last(findmax(RoutpFB[NbrBlack+NbrSpiking,:]))-1
+    solpW::Int8 = last(findmax(RoutpW[NbrBlack+NbrSpiking,:]))-1
+    
+    
+    if (solFB==train_y[Img]) && (solW==train_y[Img]) && (solpFB==train_y[Img]) && (solpW==train_y[Img])
+    else
+        if (solFB!=train_y[Img]) global TauxErrorFFB+=1 end
+        if (solW!=train_y[Img]) global TauxErrorFW+=1 end
+        if (solpFB!=train_y[Img]) global TauxErrorPFB+=1 end
+        if (solpW!=train_y[Img]) global TauxErrorPW+=1 end
+    end
+    @printf("position %5d : réel=%1d : T-Flo-FB=%1d : T-Flo-W=%1d : T-VHDL-FB=%1d : T-VHDL-W=%1d : E-FLO-FB=%3d : E-FLO-W=%3d : E-VHDL-FB=%3d : E-VHDL-W=%3d \n",Img, train_y[Img], solFB, solW, solpFB, solpW, TauxErrorFFB, TauxErrorFW, TauxErrorPFB,  TauxErrorPW )
+    @printf(file, "position %5d : réel=%1d : T-Flo-FB=%1d : T-Flo-W=%1d : T-VHDL-FB=%1d : T-VHDL-W=%1d : E-FLO-FB=%3d : E-FLO-W=%3d : E-VHDL-FB=%3d : E-VHDL-W=%3d \n",Img, train_y[Img], solFB, solW, solpFB, solpW, TauxErrorFFB, TauxErrorFW, TauxErrorPFB,  TauxErrorPW )
+end
+# loop duration / timing management
+t2=time()
+@printf("durée des calculs (secondes) : %f",(t2-t1))
+close(file)
+

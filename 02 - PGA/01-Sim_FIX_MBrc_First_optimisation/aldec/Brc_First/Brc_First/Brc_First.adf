@@ -1,0 +1,100 @@
+[Project]
+Current Flow=Generic
+VCS=0
+version=4
+Current Config=compile
+[Configurations]
+compile=brc_first
+[Library]
+Brc_First=.\Brc_First\Brc_First.lib
+[$LibMap$]
+Brc_First=.
+Active_lib=
+[Settings]
+FLOW_TYPE=HDL
+LANGUAGE=VHDL
+REFRESH_FLOW=1
+FLOWTOOLS=NONE
+FAMILY=
+NoTimingChecks=0
+NoTchkMsg=0
+EnableXtrace=0
+ENABLE_ADV_DATAFLOW=0
+SplitNetVectors=0
+RetvalMemorySize=32
+StackMemorySize=32
+resolution=Auto
+VsimAdditionalOptions=
+DisableIEEEWarnings=0
+DisableVitalMsg=0
+VitalAccel=1
+UnboundError=0
+VitalGlitches=0
+EnableFullDebugMode=0
+EnableSSEvent=0
+FullDebugModeSignalsFile=Brc_First.psl
+[Files]
+/brc_first.vhd=-1
+/..\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\untitled.asdb=-1
+/..\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\untitled.awc=-1
+/..\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\500us-z-900.asdb=-1
+/..\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\500us-z-900.awc=-1
+[Files.Data]
+.\src\brc_first.vhd=VHDL Source Code
+.\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\untitled.asdb=Accelerated Waveform File
+.\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\untitled.awc=Accelerated Waveform Configuration
+.\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\500us-z-900.asdb=Accelerated Waveform File
+.\..\..\..\..\..\..\..\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\500us-z-900.awc=Accelerated Waveform Configuration
+[HierarchyViewer]
+HierarchyInformation=brc_first|arch_BRC|0
+ShowHide=ShowTopLevel
+Selected=
+[folders]
+name0=ALINT-PRO Workspaces
+directory0=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension0=alintws
+name1=Coverage Databases
+directory1=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension1=acdb
+name2=Dll Libraries
+directory2=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension2=dll
+name3=Event Lists
+directory3=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension3=lst
+name4=HTML Files
+directory4=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension4=htm;html
+name5=Log Files
+directory5=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension5=log;htm;xml;txt
+name6=Matlab/Simulink Files
+directory6=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\
+extension6=m;mdl;slx
+name7=Memory Files
+directory7=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension7=mem;mif;hex
+name8=PDF Files
+directory8=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension8=pdf
+name9=Profiler Databases
+directory9=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension9=tbp
+name10=Script Files
+directory10=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension10=do;tcl;pl
+name11=Waveform Files
+directory11=D:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Code_VHDL\04-MBrc_First_optimisation\aldec\Brc_First\Brc_First\
+extension11=asdb;awc;asdbc;asdbe
+[ExternalSimulatorSettings]
+ExternalSimulator=RivieraProGui
+MacroBehavior=Generate
+EnableCustomLibraryCfg=0
+CustomLibraryCfg=
+EnableSimulation=1
+EnableSignalsLogging=1
+RunCommandParameters=-all
+LogCommandParameters=-rec *
+CustomScript=
+[LoadVHPI]
+Count=0

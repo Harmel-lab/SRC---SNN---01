@@ -1,0 +1,7 @@
+WARNING DAGGEN_0523: "The source is compiled without the -dbg switch. Line breakpoints and assertion debug will not be available."
+MESSAGE "File: F:/PH_01/ULg_Cours/AC_2017-20XX-Phd/Article/Article - 01/C01 - Code article/FPGA/01-Sim_FIX_MBrc_First_optimisation/aldec/Brc_First/Brc_First/src/brc_first.vhd" 
+MESSAGE "Compile Entity "Brc_First"" 
+MESSAGE "Compile Architecture "arch_BRC" of Entity "Brc_First"" 
+MESSAGE "Top-level unit(s) detected:" 
+MESSAGE "Entity => Brc_First" 
+SUCCESS "Compile success 0 Errors 0 Warnings  Analysis time :  78.0 [ms]" 

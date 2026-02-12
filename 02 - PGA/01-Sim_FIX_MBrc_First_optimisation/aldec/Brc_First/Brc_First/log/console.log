@@ -1,0 +1,41 @@
+# ELBREAD: Elaboration process.
+# ELBREAD: Elaboration time 0.0 [s].
+acom -reorder -O3 -e 100 -work brc_first -2002  $dsn/src/brc_first.vhd
+# Warning: DAGGEN_0523: The source is compiled without the -dbg switch. Line breakpoints and assertion debug will not be available.
+# File: F:/PH_01/ULg_Cours/AC_2017-20XX-Phd/Article/Article - 01/C01 - Code article/FPGA/01-Sim_FIX_MBrc_First_optimisation/aldec/Brc_First/Brc_First/src/brc_first.vhd
+# Compile Entity "Brc_First"
+# Compile Architecture "arch_BRC" of Entity "Brc_First"
+# Top-level unit(s) detected:
+# Entity => Brc_First
+# Compile success 0 Errors 0 Warnings  Analysis time :  78.0 [ms]
+asim -O5 +access +r +m+Brc_First Brc_First arch_BRC
+# ELBREAD: Elaboration process.
+# ELBREAD: Elaboration time 0.0 [s].
+# VSIM: Stack memory: 32MB
+# VSIM: Retval memory: 32MB
+# KERNEL: Main thread initiated.
+# KERNEL: Kernel process initialization phase.
+# ELAB2: Elaboration final pass...
+# ELAB2: Create instances ...
+# KERNEL: Time resolution set to 1ps.
+# ELAB2: Create instances complete.
+# SLP: Started
+# SLP: Elaboration phase ...
+# SLP: Elaboration phase ... skipped, nothing to simulate in SLP mode : 0.0 [s]
+# SLP: Finished : 0.0 [s]
+# ELAB2: Elaboration final pass complete - time: 0.0 [s].
+# KERNEL: Kernel process initialization done.
+# Allocation: Simulator allocated 5572 kB (elbread=427 elab2=5006 kernel=139 sdf=0)
+# KERNEL: ASDB file was created in location F:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Article\Article - 01\C01 - Code article\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\wave.asdb
+# Stimuli: Warning: The stimuli set "StimuliSet44" has been made inactive.
+#  11:01, lundi 9 février 2026
+#  Simulation has been initialized
+# VSIM: 3 object(s) traced.
+# Waveform file 'untitled.awc' connected to 'F:/PH_01/ULg_Cours/AC_2017-20XX-Phd/Article/Article - 01/C01 - Code article/FPGA/01-Sim_FIX_MBrc_First_optimisation/aldec/Brc_First/Brc_First/src/wave.asdb'.
+run 100 ns
+# KERNEL: stopped at time: 100 ns
+run 50 us
+# KERNEL: stopped at time: 50100 ns
+# Waveform file 'F:/PH_01/ULg_Cours/AC_2017-20XX-Phd/Article/Article-01/C01-Codearticle/FPGA/01-Sim_FIX_MBrc_First_optimisation/aldec/Brc_First/Brc_First/src/untitled.awc' connected to 'F:/PH_01/ULg_Cours/AC_2017-20XX-Phd/Article/Article-01/C01-Codearticle/FPGA/01-Sim_FIX_MBrc_First_optimisation/aldec/Brc_First/Brc_First/src/untitled.asdb'.
+# Adding file F:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Article\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\untitled.asdb ... Done
+# Adding file F:\PH_01\ULg_Cours\AC_2017-20XX-Phd\Article\Article-01\C01-Codearticle\FPGA\01-Sim_FIX_MBrc_First_optimisation\aldec\Brc_First\Brc_First\src\untitled.awc ... Done

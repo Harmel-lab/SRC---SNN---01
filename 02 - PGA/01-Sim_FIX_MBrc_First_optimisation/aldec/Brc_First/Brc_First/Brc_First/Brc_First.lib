@@ -1,0 +1,24 @@
+timestamp=1770631295240
+
+[~A]
+ModifyID=307
+Version=74
+
+[~MFT]
+0=2|0Brc_First.mgf|247116|244070
+1=2|1Brc_First.mgf|412461|412461
+3=2|3Brc_First.mgf|0|0
+
+[brc_first]
+A/arch_brc=A/arch_BRC 21|../src/brc_first.vhd|52|1*412461
+BinW64/arch_brc=3*0
+I=0*244698
+I/arch_brc=I/arch_BRC 0*247116
+M=11|2|vef|1770631135541|../src/brc_first.vhd|0*244302*0x3dc9a0e8a92ac797e3a9aeea3c082e4d149ce007|0*244615*0x23b75c12e3e89f2ef000564498faa8c2
+M/arch_brc=M/arch_BRC 21|2|vef|1770631295175|../src/brc_first.vhd|0*244941*0xfed414d3169bc22478b12421ffa5e1a823656b6e|0*247021*0x20116f55b147878295aeff36dce7fc50
+R=../src/brc_first.vhd|38
+Version=13.0.375.8320 (Windows64)|00000003789cd3f5370600015b00b0|7e4d8da4b0f349569e9abd4e10e74b59d3653051ad52a43dcf83c4813aa3d7d0f28ce40e50969cd3e365d55eec394299
+Version/arch_brc=13.0.375.8320 (Windows64)|00000003789cd3f5370600015b00b0|00a421b17cbbfd9d43d666fc5abf571ec3961cf173f4284945f58d09d41d93c813978ff54039e4bbafe09fd12400065a
+
+[~U]
+brc_first=Brc_First 11|0*244070|
