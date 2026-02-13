@@ -5,7 +5,7 @@ End-to-end tooling and HDL sources to run a **Spiking Neural Network (SNN)** bas
 This repository is primarily a *working research repo*: it contains Julia notebooks (data + model preparation) and VHDL packages/entities (FPGA-oriented implementation + simulation).
 
 <p align="center">
-  <img src="assets/overview.png" width="700">
+  <img src="assets/Git-SRC-SNN-01.jpg" width="700">
 </p>
 ---
 
