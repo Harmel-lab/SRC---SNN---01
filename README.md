@@ -1,12 +1,14 @@
 # SRC - SNN - 01
 
+<p align="center">
+  <img src="assets/Git-SRC-SNN-01.jpg" width="600">
+</p>
+
 End-to-end tooling and HDL sources to run a **Spiking Neural Network (SNN)** based on a **Spiking Recurrent Cell (SRC)** on FPGA, using **MNIST** spike-train inputs.
 
 This repository is primarily a *working research repo*: it contains Julia notebooks (data + model preparation) and VHDL packages/entities (FPGA-oriented implementation + simulation).
 
-<p align="center">
-  <img src="assets/Git-SRC-SNN-01.jpg" width="700">
-</p>
+
 ---
 
 ## At a glance
@@ -16,8 +18,6 @@ This repository is primarily a *working research repo*: it contains Julia notebo
 - **Network (VHDL implementation):** **784 → 100 → 10** (hidden layer = 100 neurons, output = 10 classes).
 - **Sequence format (from `model/config.json`):** prefix=20, seq=200, suffix=0 ⇒ total=220 timesteps.
 - **Example FPGA memory (`.coe`):** 500 sequences × 220 timesteps = **110000 frames**.
-
-> Note: `model/config.json` currently says `hidden_size=128`, but the exported arrays and the VHDL packages are built for **100** hidden neurons. The **arrays/VHDL are the source of truth** in this repo.
 
 ---
 
