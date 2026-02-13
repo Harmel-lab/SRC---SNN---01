@@ -6,7 +6,9 @@ This repository is primarily a *working research repo*: it contains Julia notebo
 
 > Folder naming note: the HDL folder is named `02 - PGA/` in this repo (likely meant to be `FPGA`). The README keeps the on-disk names as-is.
 
-![Project overview](assets/Git-SRC-SNN-01.jpg)
+<p align="center">
+  <img src="assets/overview.png" width="700">
+</p>
 ---
 
 ## At a glance
