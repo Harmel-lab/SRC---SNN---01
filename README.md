@@ -4,8 +4,6 @@ End-to-end tooling and HDL sources to run a **Spiking Neural Network (SNN)** bas
 
 This repository is primarily a *working research repo*: it contains Julia notebooks (data + model preparation) and VHDL packages/entities (FPGA-oriented implementation + simulation).
 
-> Folder naming note: the HDL folder is named `02 - PGA/` in this repo (likely meant to be `FPGA`). The README keeps the on-disk names as-is.
-
 <p align="center">
   <img src="assets/overview.png" width="700">
 </p>
