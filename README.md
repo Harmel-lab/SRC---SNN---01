@@ -4,10 +4,6 @@
   <img src="assets/Git-SRC-SNN-01.jpg" width="600">
 </p>
 
-<p align="center">
-  <img src="Video-02.mp4" width="600">
-</p>
-
 End-to-end tooling and HDL sources to run a **Spiking Neural Network (SNN)** based on a **Spiking Recurrent Cell (SRC)** on FPGA, using **MNIST** spike-train inputs.
 
 This repository is primarily a *working research repo*: it contains Julia notebooks (data + model preparation) and VHDL packages/entities (FPGA-oriented implementation + simulation).
