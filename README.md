@@ -8,7 +8,7 @@ A Julia-based toolchain and a VHDL code suite for implementing **spiking neural 
 
 
 This repository is primarily a *working research repo*: it contains Julia notebooks (data + model preparation) and VHDL packages/entities (FPGA-oriented implementation + simulation).
-
+The complete set of Julia programs and VHDL code was used to generate the data required for the preparation of the article **“Energy-Efficient Implementation of Spiking Recurrent Cells on FPGA”** (arXiv: https://arxiv.org/abs/2605.10679).
 
 ---
 
