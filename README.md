@@ -53,11 +53,11 @@ The complete set of Julia programs and VHDL code was used to generate the data r
 
 | Path | What it is |
 |---|---|
-| `02 - FPGA/1-MNIST-FAST/` | SRC neuron parameter sweeps and `Zhyp` calibration notebooks + exported plots. |
-| `02 - FPGA/2-MNIST_Power/` | MNIST → spike-train conversion and visualisation notebooks. |
-| `02 - FPGA/3-MNIST_Screen/` | Network simulation and floating vs FPGA-style comparison notebooks + model artefacts. |
-| `02 - FPGA/4-FashionNMIST-FAST/` | Converters from NPY spike trains to FPGA `.coe` initialisation files. |
-| `02 - FPGA/5-FashionNMIST-Power/` | VHDL package/code generation notebooks (weights/coefficients). |
+| `02 - FPGA/1-MNIST-FAST/` | VHDL code using MNIST dataset - FAST add current - Large COE. |
+| `02 - FPGA/2-MNIST_Power/` | VHDL code using MNIST dataset - Minimal code to Power Analyse - Smallest COE. |
+| `02 - FPGA/3-MNIST_Screen/` | VHDL code using MNIST dataset - HUB75 led matrix driver - Smallest COE.. |
+| `02 - FPGA/4-FashionNMIST-FAST/` | VHDL code using FasionMNIST dataset - FAST add current - Large COE. |
+| `02 - FPGA/5-FashionNMIST-Power/` | VHDL code using FashionMNIST dataset - Minimal code to Power Analyse - Smallest COE. |
 
 ---
 
@@ -71,4 +71,5 @@ They correspond to different quantisation/scaling choices (useful for accuracy v
 
 ## Contact
 Maintainer: Pascal Harmeling (ULiège) — pascal.harmeling@uliege.be.
+
 Additional useful link: https://www.neuroengineering.uliege.be/cms/c_11384013/en/neuroengineering-laboratory
