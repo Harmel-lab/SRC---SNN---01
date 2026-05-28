@@ -100,7 +100,7 @@ architecture LInt_neuro_all of LInt_neuro is
 	-- Constants
 																							-- !! durant un apprentissage 				!!
 	-- Variables environnement - Gestion du Lintégrator
-	signal tmpcurSUP  : integer range -1024 to +1023 :=0;
+	signal tmpcurSUP  : integer range -8192 to +8191 :=0;
     signal SmaC       : integer range 0 to 3 := 0;   -- State mac  : 0 - attendre Go = 0
 											         -- 		   : 1 - attendre GO = 1 -> ready =0
 											         --			   : 2 - FAIRE LA TACHE PROCESSUS - boucle de production et traitement des datas
@@ -125,7 +125,7 @@ architecture LInt_neuro_all of LInt_neuro is
 		-------------------------------------------------------------------------------------------------------------
 		CycleLInt: process (CLK,Reset, go)
 		--variable local pour le processus de traitement de la tâche
-		variable tmpcur     : integer range -2048 to +2047 :=0;   -- variable de calcul - Somme courant
+		variable tmpcur     : integer range -8192 to +8191 :=0;   -- variable de calcul - Somme courant
         
         begin 	  
         if rising_edge(CLK) then
